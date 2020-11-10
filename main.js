@@ -38,29 +38,31 @@ $(function () {
 if (data.join('') == '') {
     alert('No Match.');
 }
+
 let m = false;
 if (typeof dual[0] == 'string') m = true;
 
 //세부정보
-if(!m) {
+if (!m) {
+    data = data.map(x=> { if (typeof x == 'string') return x.replace(/\\/g, ''); else return x;});
     if (dual) document.getElementById('slider').innerHTML = '<a href="#" class="control_next">></a>\n<a href="#" class="control_prev"><</a>\n<ul>\n	<li>\n		<img class="img-center img-fluid shadow shadow-lg--hover" style="width: 350px;" data-src="' + data[4] + '" src="' + data[4] + '" lazy="loaded">\n	</li>\n	<li>\n		<img class="img-center img-fluid shadow shadow-lg--hover" style="width: 350px;" data-src="' + data[4].replace('.jpg', '_1.jpg') + '" src="' + data[4].replace('.jpg', '_1.jpg') + '" lazy="loaded">\n	</li>\n</ul>';
     else document.getElementById('slider').innerHTML = '<li>\n	<img class="img-center img-fluid shadow shadow-lg--hover" style="width: 350px;" data-src="' + data[4] + '" src="' + data[4] + '" lazy="loaded">\n</li>';
 
-    document.getElementById('title').innerHTML = data[0];
-    document.getElementById('artist').innerHTML = data[1];
-    document.getElementById('bpm').innerHTML = data[2];
+    document.getElementById('title').innerText = data[0];
+    document.getElementById('artist').innerText = data[1];
+    document.getElementById('bpm').innerText = data[2];
 
     for (let i = 0; i < data[3].length; i++)
-        document.getElementById('diff_' + i).innerHTML = data[3][i];
+        document.getElementById('diff_' + i).innerText = data[3][i];
     if (data[3][3] == '') {
-        document.getElementById('diff_3').innerHTML = '0';
+        document.getElementById('diff_3').innerText = '0';
         document.getElementById('diff_3').style.opacity = 0;
         document.getElementById('diff_3').style.width = 0;
     }
     if (data[3][2] == '?') {
         for (let i = 0; i < 3; i++) {
             if (i == 2) break;
-            document.getElementById('diff_' + i).innerHTML = '0';
+            document.getElementById('diff_' + i).innerText = '0';
             document.getElementById('diff_' + i).style.opacity = 0;
             document.getElementById('diff_' + i).style.width = 0;
         }
@@ -68,6 +70,7 @@ if(!m) {
     }
 }
 else {
+    data = data.map(x=>x.map(y=>y.replace(/\\/g, '')));
     let container = document.getElementById('a');
     container.innerHTML = '';
     for (let j = 0; j < data.length; j++) {
@@ -78,7 +81,7 @@ else {
             return document.getElementById(id);
         };
         let slider; //커버
-        if (dual[j] == 'true') slider = '<a href="#" class="control_next">></a>\n<a href="#" class="control_prev"><</a>\n<ul>\n	<li>\n		<img class="img-center img-fluid shadow shadow-lg--hover" style="width: 350px;" data-src="' + data[j][4] + '" src="' + data[j][4] + '" lazy="loaded">\n	</li>\n	<li>\n		<img class="img-center img-fluid shadow shadow-lg--hover" style="width: 350px;" data-src="' + data[j][4].replace('.jpg', '_1.jpg') + '" src="' + data[j][4].replace('.jpg', '_1.jpg') + '" lazy="loaded">\n	</li>\n</ul>';
+        if (dual[j] == 'true') slider = '<a href="#" class="control_next" id="con_n_' + j + '">></a>\n<a href="#" class="control_prev" id="con_p_' + j + '"><</a>\n<ul>\n	<li>\n		<img class="img-center img-fluid shadow shadow-lg--hover" style="width: 350px;" data-src="' + data[j][4] + '" src="' + data[j][4] + '" lazy="loaded">\n	</li>\n	<li>\n		<img class="img-center img-fluid shadow shadow-lg--hover" style="width: 350px;" data-src="' + data[j][4].replace('.jpg', '_1.jpg') + '" src="' + data[j][4].replace('.jpg', '_1.jpg') + '" lazy="loaded">\n	</li>\n</ul>';
         else slider = '<li>\n	<img class="img-center img-fluid shadow shadow-lg--hover" style="width: 350px;" data-src="' + data[j][4] + '" src="' + data[j][4] + '" lazy="loaded">\n</li>';
 
         let title = data[j][0];
@@ -160,9 +163,11 @@ if (!m) {
         };
         $('a.control_prev').click(function () {
             moveLeft();
+            return false;
         });
         $('a.control_next').click(function () {
             moveRight();
+            return false;
         });
     });
 }
@@ -192,11 +197,13 @@ else {
                     $('#slider_' + j + ' ul').css('left', '');
                 });
             };
-            $('a.control_prev').click(function () {
+            $('a#con_p_' + j + '.control_prev').click(function () {
                 moveLeft();
+                return false;
             });
-            $('a.control_next').click(function () {
+            $('a#con_n_' + j + '.control_next').click(function () {
                 moveRight();
+                return false;
             });
         });
     }

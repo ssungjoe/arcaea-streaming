@@ -243,6 +243,7 @@ a.control_next {
     padding-top: 15px;
     line-height: 15px;
     vertical-align: top;
+    white-space: nowrap;
     clip-path: polygon(23px 0, calc(100% - 23px) 0, 100% 23px, 100% calc(100% - 23px), calc(100% - 23px) 100%, 23px 100%, 0 calc(100% - 23px), 0 23px)
 }
 

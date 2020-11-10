@@ -48,7 +48,7 @@
 								</div> 
 								<div class="col-9">
 									<h2 class="display-4">
-										<small id="bpm"></small>
+										<div id="bpm"></div>
 									</h2>
 								</div>
 							</div>
@@ -102,15 +102,33 @@
 			function contains($str, $text) { 
 				return (strpos($text, $str) !== false); 
 			}
+			function get_s_data($arr_b) {
+				$arr_r = array();
+				for($n = 0; $n < count($arr_b); $n++) {
+					$tem = substr($arr_b[$n], 3);
+					$tem = json_decode($tem, true)['error'];
+					if($tem === false) array_push($arr_r, $arr_b[$n]);
+				}
+				return array_unique($arr_r);
+			}
 			//데이터 받아오기
 			if(isset($_GET['id']) && $_GET['id']) {
-				$msg = trim(urldecode($_GET['id'])); //하나짜리
-				if(contains(',', $msg)) { //여러개(재생목록)
+				$msg = trim(urldecode($_GET['id'])); 
+				if(!contains(',', $msg)) { //하나짜리
+					$multi = false;
+					$data = get('http://vectorbot.dothome.co.kr/arcaea/getMusicData.php?songName='.urlencode($msg).'&type=input');
+				}
+				else if(contains(',', $msg) && count(explode(',', substr($msg, 0, -1))) === 1) { //하나짜리
+				$msg = trim(substr($msg, 0, -1));
+					$multi = false;
+					$data = get('http://vectorbot.dothome.co.kr/arcaea/getMusicData.php?songName='.urlencode($msg).'&type=input');
+				}
+				else { //여러개(재생목록)
 					$multi = true;
 					$data_arr = array();
 					if(endsWith($msg, ',')) { // 끝이 , 로 끝나면 (자동완성받은거 안고치고 그래도 제출)
 						$msg = trim(substr($msg, 0, -1));
-						$a = explode(', ', $msg); //title array
+						$a = explode(',', $msg); //title array
 						for($i = 0; $i < count($a); $i++) {
 							$resp = get('http://vectorbot.dothome.co.kr/arcaea/getMusicData.php?songName='.urlencode(trim($a[$i])).'&type=input');
 							array_push($data_arr, $resp);
@@ -123,11 +141,9 @@
 							array_push($data_arr, $resp);
 						}
 					}
+					$data_arr = get_s_data($data_arr);
 				}
-				else  {
-					$multi = false;
-					$data = get('http://vectorbot.dothome.co.kr/arcaea/getMusicData.php?songName='.$msg.'&type=input');
-				}
+				
 				//하나짜리면 $data
 				//재생목록이면 $data_arr 받으면 됨
 			}
@@ -181,16 +197,16 @@
 				if($data_f[0] != '') {
 					$title = $data_f[0]; $artist = $data_f[1]; $bpm = $data_f[2]; $difficulty = $data_f[3]; 
 					$jacket = $data_f[4]; $url = $data_f[5]; $dual = $data_f[6];
-					$result = "[\n\t\t\t'$title',\n\t\t\t'$artist',\n\t\t\t$bpm,\n\t\t\t$difficulty,\n\t\t\t'$jacket',\n\t\t\t'$url'\n\t\t];";
-					echo ("const data = $result\n\t\tconst dual = $dual;\n");
+					$result = "[\n\t\t\t'$title',\n\t\t\t'$artist',\n\t\t\t'$bpm',\n\t\t\t$difficulty,\n\t\t\t'$jacket',\n\t\t\t'$url'\n\t\t];";
+					echo ("let data = $result\n\t\tconst dual = $dual;\n");
 				}
 				else {
 					$data = get('http://vectorbot.dothome.co.kr/arcaea/getMusicData.php?songName=null&type=random');
 					$data_s = getdata($data, false);
 					$title = $data_s[0]; $artist = $data_s[1]; $bpm = $data_s[2]; $difficulty = $data_s[3]; 
 					$jacket = $data_s[4]; $url = $data_s[5]; $dual = $data_s[6];
-					$result = "[\n\t\t\t'$title',\n\t\t\t'$artist',\n\t\t\t$bpm,\n\t\t\t$difficulty,\n\t\t\t'$jacket',\n\t\t\t'$url'\n\t\t];";
-					echo ("alert('일치하는 곡명이 없습니다. 무작위 노래를 재생합니다.');\n\t\tconst data = $result\n\t\tconst dual = $dual;\n");
+					$result = "[\n\t\t\t'$title',\n\t\t\t'$artist',\n\t\t\t'$bpm',\n\t\t\t$difficulty,\n\t\t\t'$jacket',\n\t\t\t'$url'\n\t\t];";
+					echo ("alert('일치하는 곡명이 없습니다. 무작위 노래를 재생합니다.');\n\t\tlet data = $result\n\t\tconst dual = $dual;\n");
 				}
 			}
 			else {
@@ -208,7 +224,7 @@
 				}
 				$result = json_encode($v, JSON_PRETTY_PRINT);
 				$dual = json_encode($dual_arr, true);
-				echo "\n\t\tconst data = $result;\n\t\tconst dual = $dual;\n";
+				echo "\n\t\tlet data = $result;\n\t\tconst dual = $dual;\n";
 			}
 			//PHP FINISH
 		?>
